@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model UserAccount {
+  id                       Int                        @id @default(autoincrement())
+  firstName                String
+  firstNamePhonetic        String
+  lastName                 String
+  lastNamePhonetic         String
+  email                    String
+  phoneNumber              String
+  registeredAt             DateTime                   @default(now())
+  Invoice                  Invoice[]
+  PaymentReminderPhoneCall PaymentReminderPhoneCall[]
+}
+
+model Invoice {
+  id             Int              @id @default(autoincrement())
+  userAccount    UserAccount      @relation(fields: [userAccountId], references: [id])
+  userAccountId  Int
+  amount         Decimal
+  term           String
+  dueDate        DateTime
+  InvoicePayment InvoicePayment[]
+}
+
+model InvoicePayment {
+  id        Int      @id @default(autoincrement())
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  invoiceId Int
+  amount    Decimal
+  paidAt    DateTime
+}
+
+model PaymentReminderPhoneCall {
+  id            Int         @id @default(autoincrement())
+  userAccount   UserAccount @relation(fields: [userAccountId], references: [id])
+  userAccountId Int
+  summary       String
+  calledAt      DateTime
+}
